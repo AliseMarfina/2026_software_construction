@@ -1,4 +1,4 @@
 package com.calorietracker.backend.common;
 
-public class ErrorResponse {
+public record ErrorResponse(int status, String message) {
 }

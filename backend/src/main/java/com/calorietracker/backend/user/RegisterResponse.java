@@ -1,4 +1,4 @@
-package com.calorietracker.backend.user;
+package com.calorietracker.backend.auth.dto;
 
-public class RegisterResponse {
+public record RegisterResponse(Long id, String email) {
 }

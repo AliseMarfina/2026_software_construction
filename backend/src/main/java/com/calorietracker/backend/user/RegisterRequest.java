@@ -1,4 +1,11 @@
-package com.calorietracker.backend.user;
+package com.calorietracker.backend.auth.dto;
 
-public class RegisterRequest {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record RegisterRequest(
+        @NotBlank @Email @Size(max = 255) String email,
+        @NotBlank @Size(min = 8, max = 72) String password
+) {
 }
