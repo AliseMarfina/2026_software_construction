@@ -1,5 +1,7 @@
 package com.calorietracker.backend.auth;
 
+import com.calorietracker.backend.auth.dto.LoginRequest;
+import com.calorietracker.backend.auth.dto.LoginResponse;
 import com.calorietracker.backend.auth.dto.RegisterRequest;
 import com.calorietracker.backend.auth.dto.RegisterResponse;
 import jakarta.validation.Valid;
@@ -22,5 +24,10 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }
