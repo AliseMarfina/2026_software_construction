@@ -51,4 +51,9 @@ public class ApiExceptionHandler {
     private ResponseEntity<ErrorResponse> error(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(new ErrorResponse(status.value(), message));
     }
+
+    @ExceptionHandler(ExternalServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleExternalUnavailable(ExternalServiceUnavailableException e) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
+    }
 }
