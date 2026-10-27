@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -38,4 +39,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         @Param("fat") BigDecimal fat,
                         @Param("carbs") BigDecimal carbs,
                         @Param("barcode") String barcode);
+
+    @Query("select p from Product p where p.id = :id and (p.ownerId is null or p.ownerId = :userId)")
+    Optional<Product> findVisibleById(@Param("id") Long id, @Param("userId") Long userId);
 }
