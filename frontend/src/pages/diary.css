@@ -1,0 +1,16 @@
+.diary-page { max-width: 1100px; margin: auto; padding: 24px; }
+.diary-header, .diary-entries li { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.diary-header h1 { font-size: 28px; }
+.diary-card, .diary-page .products-card { background: white; padding: 20px; border: 1px solid #dce3df; border-radius: 12px; margin-bottom: 20px; }
+.diary-totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.diary-totals dd { margin: 8px 0; font-size: 24px; font-weight: bold; }
+.diary-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.diary-columns > div { min-width: 0; }
+.diary-entries { padding: 0; list-style: none; }
+.diary-entries li { border-top: 1px solid #dce3df; padding: 12px 0; }
+.diary-page button { cursor: pointer; }
+.diary-page button:disabled { cursor: wait; }
+.diary-page button:focus-visible, .diary-page input:focus-visible { outline: 3px solid #247348; outline-offset: 3px; }
+.diary-page [role="alert"] { color: #b42318; }
+.diary-page .products-input { min-width: 0; }
+@media (max-width: 700px) { .diary-columns { grid-template-columns: 1fr; } .diary-totals { grid-template-columns: 1fr 1fr; } .diary-page { padding: 16px; } }
