@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.stream.Collectors;
 
@@ -55,5 +56,20 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ExternalServiceUnavailableException.class)
     public ResponseEntity<ErrorResponse> handleExternalUnavailable(ExternalServiceUnavailableException e) {
         return error(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
+        return error(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException e) {
+        return error(HttpStatus.FORBIDDEN, e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return error(HttpStatus.BAD_REQUEST, "Некорректное значение параметра " + e.getName());
     }
 }
