@@ -4,13 +4,9 @@ import './products.css'
 
 const fmt = (n) => (n === null || n === undefined ? '—' : String(n))
 
-// Поиск и выбор продукта.
-// Props:
-//   onSelect(product)  — получает полный объект продукта
-//   searchProducts(query) -> Promise<Product[]> — из createProductsApi(request)
 export default function ProductSearch({ onSelect, searchProducts }) {
   const [query, setQuery] = useState('')
-  const [status, setStatus] = useState('idle') // idle | loading | done | error
+  const [status, setStatus] = useState('idle')
   const [results, setResults] = useState([])
   const [error, setError] = useState('')
   const [validation, setValidation] = useState('')
@@ -26,7 +22,7 @@ export default function ProductSearch({ onSelect, searchProducts }) {
     setValidation('')
     setError('')
     setStatus('loading')
-    const id = ++requestId.current // игнорируем устаревшие ответы
+    const id = ++requestId.current
     try {
       const found = await searchProducts(q)
       if (id !== requestId.current) return

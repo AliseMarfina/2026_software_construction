@@ -4,10 +4,6 @@ import CustomProductForm from './CustomProductForm.jsx'
 import AddEntryForm from './AddEntryForm.jsx'
 import './products.css'
 
-// ВРЕМЕННЫЙ демонстрационный компонент: работает на ТЕСТОВЫХ данных,
-// без сервера. «Добавление» ниже — имитация, на сервер ничего не сохраняется.
-// Удалить, когда DiaryPage Матвея подключит реальные api/client.js и api/diary.js.
-
 const delay = (ms) => new Promise((r) => setTimeout(r, ms))
 
 const MOCK = [
