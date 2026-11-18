@@ -8,6 +8,7 @@ import AddEntryForm from '../components/products/AddEntryForm.jsx'
 import './diary.css'
 
 const products = createProductsApi(request)
+const mealLabels = { breakfast: 'Завтрак', lunch: 'Обед', dinner: 'Ужин', snack: 'Перекус' }
 const format = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 })
 function today() {
   // Совпадает с app.timezone бэкенда по умолчанию.
@@ -54,7 +55,7 @@ function DayEntries({ date, onChanged }) {
     {data.entries.length === 0 ? <p>За этот день записей пока нет.</p> :
       <ul className="diary-entries">{data.entries.map(entry =>
         <li key={entry.id}>
-          <div><strong>{entry.productName}</strong><p>{format.format(entry.grams)} г · {format.format(entry.kcal)} ккал · Б {format.format(entry.protein)} · Ж {format.format(entry.fat)} · У {format.format(entry.carbs)}</p></div>
+          <div><strong>{entry.productName}</strong><p>{mealLabels[entry.mealType] ?? entry.mealType}</p><p>{format.format(entry.grams)} г · {format.format(entry.kcal)} ккал · Б {format.format(entry.protein)} · Ж {format.format(entry.fat)} · У {format.format(entry.carbs)}</p></div>
           <button disabled={deleting !== null} onClick={() => remove(entry.id)} aria-label={`Удалить ${entry.productName}`}>
             {deleting === entry.id ? 'Удаление…' : 'Удалить'}
           </button>

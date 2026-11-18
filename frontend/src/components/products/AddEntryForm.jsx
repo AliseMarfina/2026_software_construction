@@ -15,6 +15,7 @@ function parseGrams(raw) {
 
 export default function AddEntryForm({ product, onAdded, addEntry }) {
   const [grams, setGrams] = useState('')
+  const [mealType, setMealType] = useState('breakfast')
   const [fieldError, setFieldError] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -41,7 +42,7 @@ export default function AddEntryForm({ product, onAdded, addEntry }) {
     setSubmitError('')
     setSubmitting(true)
     try {
-      await addEntry({ productId: product.id, grams: parsed.value })
+      await addEntry({ productId: product.id, grams: parsed.value, mealType })
     } catch (err) {
       setSubmitError(err?.message || 'Не удалось добавить запись.')
       setSubmitting(false)
@@ -60,6 +61,14 @@ export default function AddEntryForm({ product, onAdded, addEntry }) {
       <p className="products-item-name">{product.name}</p>
 
       <form className="products-form" onSubmit={handleSubmit} noValidate>
+        <label className="products-label" htmlFor="products-add-meal">Приём пищи</label>
+        <select id="products-add-meal" className="products-input" value={mealType}
+          onChange={event => setMealType(event.target.value)} disabled={submitting}>
+          <option value="breakfast">Завтрак</option>
+          <option value="lunch">Обед</option>
+          <option value="dinner">Ужин</option>
+          <option value="snack">Перекус</option>
+        </select>
         <label className="products-label" htmlFor="products-add-grams">
           Граммы
         </label>
