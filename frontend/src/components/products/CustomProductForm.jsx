@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import './products.css'
 
-// Ограничения совпадают с CreateCustomProductRequest на бэкенде.
 const FIELDS = [
   { key: 'kcal', label: 'Калории, ккал на 100 г', max: 900 },
   { key: 'protein', label: 'Белки, г на 100 г', max: 100 },
@@ -9,7 +8,6 @@ const FIELDS = [
   { key: 'carbs', label: 'Углеводы, г на 100 г', max: 100 },
 ]
 
-// Принимает число от 0 до max с точностью до двух знаков; допускает запятую.
 function parseNumber(raw, max) {
   const text = raw.trim().replace(',', '.')
   if (text === '') return { error: 'Обязательное поле.' }
@@ -23,10 +21,6 @@ function parseNumber(raw, max) {
 
 const EMPTY = { name: '', kcal: '', protein: '', fat: '', carbs: '' }
 
-// Создание своего продукта.
-// Props:
-//   onCreated(product) — объект, возвращённый сервером (в дневник не добавляется)
-//   createProduct(data) -> Promise<Product> — из createProductsApi(request)
 export default function CustomProductForm({ onCreated, createProduct }) {
   const [values, setValues] = useState(EMPTY)
   const [errors, setErrors] = useState({})

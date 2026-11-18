@@ -1,5 +1,3 @@
-/* Стили компонентов продуктов. Только классы с префиксом products-,
-   глобальных правил для button/input/form нет. */
 .products-card {
   border: 1px solid #d0d5dd;
   border-radius: 8px;

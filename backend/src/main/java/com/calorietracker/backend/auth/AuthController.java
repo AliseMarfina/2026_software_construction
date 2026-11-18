@@ -2,11 +2,15 @@ package com.calorietracker.backend.auth;
 
 import com.calorietracker.backend.auth.dto.LoginRequest;
 import com.calorietracker.backend.auth.dto.LoginResponse;
+import com.calorietracker.backend.auth.dto.MeResponse;
 import com.calorietracker.backend.auth.dto.RegisterRequest;
 import com.calorietracker.backend.auth.dto.RegisterResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +33,10 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @GetMapping("/me")
+    public MeResponse me(@AuthenticationPrincipal Jwt jwt) {
+        return authService.me(CurrentUser.id(jwt));
     }
 }

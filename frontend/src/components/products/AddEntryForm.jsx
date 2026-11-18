@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import './products.css'
 
-// Граммовка: > 0, не более 10000, максимум два знака (как CreateDiaryEntryRequest).
 function parseGrams(raw) {
   const text = raw.trim().replace(',', '.')
   if (text === '') return { error: 'Введите граммовку.' }
@@ -14,12 +13,6 @@ function parseGrams(raw) {
   return { value }
 }
 
-// Добавление выбранного продукта в дневник.
-// Props:
-//   product            — полный объект продукта (или null)
-//   onAdded()          — вызывается без аргументов только после успешного сохранения
-//   addEntry({ productId, grams }) -> Promise — функция из api/diary.js Матвея
-//                        (формат: POST /api/diary, тело { productId, grams })
 export default function AddEntryForm({ product, onAdded, addEntry }) {
   const [grams, setGrams] = useState('')
   const [fieldError, setFieldError] = useState('')
@@ -52,7 +45,7 @@ export default function AddEntryForm({ product, onAdded, addEntry }) {
     } catch (err) {
       setSubmitError(err?.message || 'Не удалось добавить запись.')
       setSubmitting(false)
-      return // при ошибке onAdded не вызываем
+      return
     }
     setSubmitting(false)
     setGrams('')

@@ -24,15 +24,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                          @Param("userId") Long userId,
                          @Param("limit") int limit);
 
+    @Query("select p from Product p where p.id = :id and (p.ownerId is null or p.ownerId = :userId)")
+    Optional<Product> findVisibleById(@Param("id") Long id, @Param("userId") Long userId);
+
     List<Product> findByBarcodeIn(Collection<String> barcodes);
 
     @Transactional
     @Modifying
     @Query(value = """
-        INSERT INTO products (name, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, barcode)
-        VALUES (:name, :kcal, :protein, :fat, :carbs, :barcode)
-        ON CONFLICT (barcode) DO NOTHING
-        """, nativeQuery = true)
+            INSERT INTO products (name, kcal_per_100g, protein_per_100g, fat_per_100g, carbs_per_100g, barcode)
+            VALUES (:name, :kcal, :protein, :fat, :carbs, :barcode)
+            ON CONFLICT (barcode) DO NOTHING
+            """, nativeQuery = true)
     void insertIfAbsent(@Param("name") String name,
                         @Param("kcal") BigDecimal kcal,
                         @Param("protein") BigDecimal protein,
@@ -40,6 +43,25 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         @Param("carbs") BigDecimal carbs,
                         @Param("barcode") String barcode);
 
-    @Query("select p from Product p where p.id = :id and (p.ownerId is null or p.ownerId = :userId)")
-    Optional<Product> findVisibleById(@Param("id") Long id, @Param("userId") Long userId);
+    // Обновляет КБЖУ только если оно действительно изменилось. Возвращает число обновлённых строк (0 или 1).
+    @Transactional
+    @Modifying
+    @Query(value = """
+            UPDATE products
+            SET kcal_per_100g = :kcal,
+                protein_per_100g = :protein,
+                fat_per_100g = :fat,
+                carbs_per_100g = :carbs,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE barcode = :barcode
+              AND (kcal_per_100g IS DISTINCT FROM :kcal
+                   OR protein_per_100g IS DISTINCT FROM :protein
+                   OR fat_per_100g IS DISTINCT FROM :fat
+                   OR carbs_per_100g IS DISTINCT FROM :carbs)
+            """, nativeQuery = true)
+    int updateNutrientsIfChanged(@Param("barcode") String barcode,
+                                 @Param("kcal") BigDecimal kcal,
+                                 @Param("protein") BigDecimal protein,
+                                 @Param("fat") BigDecimal fat,
+                                 @Param("carbs") BigDecimal carbs);
 }
