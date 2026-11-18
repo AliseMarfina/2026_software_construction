@@ -35,6 +35,9 @@ public class DiaryEntry {
     @Column(name = "product_name", nullable = false, length = 255)
     private String productName;
 
+    @Column(name = "meal_type", nullable = false, length = 20)
+    private String mealType;
+
     @Column(nullable = false, precision = 7, scale = 2)
     private BigDecimal grams;
 
@@ -50,10 +53,16 @@ public class DiaryEntry {
     @Column(nullable = false, precision = 7, scale = 2)
     private BigDecimal carbs;
 
+    @Column(name = "eaten_at")
+    private Instant eatenAt;
+
     @CreationTimestamp
     @Column(name = "logged_at", updatable = false)
     private Instant loggedAt;
 
     @Column(name = "logged_date", nullable = false)
     private LocalDate loggedDate;
+
+    @Column(name = "product_updated", nullable = false)
+    private boolean productUpdated;
 }
