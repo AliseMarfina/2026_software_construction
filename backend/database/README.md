@@ -9,14 +9,45 @@ Password: <передаётся отдельно>
 
 Если бэкенд в Docker — заменить `localhost` на `postgres` (имя контейнера).
 
-## Восстановление БД
+## Запуск из корня репозитория
+
+Откройте Docker Desktop, затем выполните:
 
 ```bash
-# 1. Создать базу
-docker exec -it postgres psql -U postgres -c "CREATE DATABASE calorie_tracker;"
+docker compose -f backend/database/docker-compose.yml up -d
+docker compose -f backend/database/docker-compose.yml ps
+```
 
-# 2.
-docker exec -i postgres psql -U postgres -d calorie_tracker < database/schema.sql
+На пустом volume PostgreSQL последовательно выполнит `database/schema.sql`
+и `backend/database/migrations/001_release_diary.sql`. Миграция приводит схему
+к текущему контракту бэкенда, включая `products.updated_at` и поля дневника.
+Данные сохраняются в volume `postgres-data`.
+
+По умолчанию локальный пароль — `postgres`. Если задан `POSTGRES_PASSWORD`,
+передайте тот же пароль бэкенду через `DB_PASSWORD`.
+Порт 5432 должен быть свободен от другого локального PostgreSQL.
+
+## Обновление существующей базы
+
+При существующем volume скрипты инициализации автоматически не повторяются.
+Сначала сохраните резервную копию (она содержит данные пользователей):
+
+```bash
+docker compose -f backend/database/docker-compose.yml exec -T postgres pg_dump -U postgres -d calorie_tracker -Fc > calorie-tracker-backup.dump
+```
+
+Храните копию вне Git. Затем примените миграцию:
+
+```bash
+docker compose -f backend/database/docker-compose.yml exec -T postgres psql -v ON_ERROR_STOP=1 -U postgres -d calorie_tracker < backend/database/migrations/001_release_diary.sql
+```
+
+Миграция сохраняет строки. Старым записям без типа назначается `snack`,
+а отсутствующее время приёма пищи заполняется временем создания записи.
+Повторное применение допускается. Для остановки без удаления данных:
+
+```bash
+docker compose -f backend/database/docker-compose.yml stop
 ```
 
 ## Проверить
