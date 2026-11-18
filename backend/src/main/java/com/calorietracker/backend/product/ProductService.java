@@ -2,6 +2,7 @@ package com.calorietracker.backend.product;
 
 import com.calorietracker.backend.common.BadRequestException;
 import com.calorietracker.backend.common.ExternalServiceUnavailableException;
+import com.calorietracker.backend.common.NotFoundException;
 import com.calorietracker.backend.product.dto.CreateCustomProductRequest;
 import com.calorietracker.backend.product.dto.ProductResponse;
 import com.calorietracker.backend.product.off.OffProduct;
@@ -28,6 +29,7 @@ public class ProductService {
     private static final int SEARCH_LIMIT = 20;
 
     private final ProductRepository productRepository;
+    private final ProductImporter productImporter;
     private final OpenFoodFactsClient openFoodFactsClient;
     private final SlidingWindowRateLimiter offRateLimiter;
     private final OffProperties offProperties;
@@ -41,6 +43,9 @@ public class ProductService {
         List<Product> found = productRepository.search(escapeLikePattern(trimmed), userId, SEARCH_LIMIT);
         if (found.size() < offProperties.minDbResults()) {
             found = supplementFromOpenFoodFacts(trimmed, found);
+        }
+        if (found.isEmpty()) {
+            throw new NotFoundException("Данного продукта нет в базе данных. Вы можете добавить его вручную.");
         }
         return found.stream().map(ProductResponse::from).toList();
     }
@@ -76,8 +81,7 @@ public class ProductService {
             return found;
         }
 
-        imported.forEach(product -> productRepository.insertIfAbsent(
-                product.name(), product.kcal(), product.protein(), product.fat(), product.carbs(), product.barcode()));
+        imported.forEach(productImporter::importProduct);
         List<String> barcodes = imported.stream().map(OffProduct::barcode).toList();
         return mergeById(found, productRepository.findByBarcodeIn(barcodes));
     }

@@ -8,24 +8,32 @@ import java.time.Instant;
 public record DiaryEntryResponse(
         Long id,
         String productName,
+        String mealType,
         BigDecimal grams,
         BigDecimal kcal,
         BigDecimal protein,
         BigDecimal fat,
         BigDecimal carbs,
-        Instant loggedAt
+        Instant eatenAt,
+        Instant loggedAt,
+        boolean productUpdated,
+        Instant productUpdatedAt
 ) {
 
-    public static DiaryEntryResponse from(DiaryEntry entry) {
+    public static DiaryEntryResponse from(DiaryEntry entry, Instant productUpdatedAt) {
         return new DiaryEntryResponse(
                 entry.getId(),
                 entry.getProductName(),
+                entry.getMealType(),
                 entry.getGrams(),
                 entry.getKcal(),
                 entry.getProtein(),
                 entry.getFat(),
                 entry.getCarbs(),
-                entry.getLoggedAt()
+                entry.getEatenAt(),
+                entry.getLoggedAt(),
+                entry.isProductUpdated(),
+                productUpdatedAt
         );
     }
 }

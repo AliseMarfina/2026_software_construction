@@ -2,8 +2,10 @@ package com.calorietracker.backend.auth;
 
 import com.calorietracker.backend.auth.dto.LoginRequest;
 import com.calorietracker.backend.auth.dto.LoginResponse;
+import com.calorietracker.backend.auth.dto.MeResponse;
 import com.calorietracker.backend.auth.dto.RegisterRequest;
 import com.calorietracker.backend.auth.dto.RegisterResponse;
+import com.calorietracker.backend.common.NotFoundException;
 import com.calorietracker.backend.config.JwtProperties;
 import com.calorietracker.backend.user.User;
 import com.calorietracker.backend.user.UserRepository;
@@ -44,7 +46,6 @@ public class AuthService {
         }
     }
 
-    // TODO: выровнять время ответа для неизвестного email (сейчас bcrypt в этом случае пропускается, и по времени ответа можно отличить незарегистрированный адрес)
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(normalizeEmail(request.email()))
@@ -52,6 +53,13 @@ public class AuthService {
                 .orElseThrow(InvalidCredentialsException::new);
 
         return new LoginResponse(jwtService.generateToken(user), jwtProperties.ttlSeconds());
+    }
+
+    @Transactional(readOnly = true)
+    public MeResponse me(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> new MeResponse(user.getId(), user.getEmail()))
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
     private String normalizeEmail(String email) {

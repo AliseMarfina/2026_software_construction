@@ -4,6 +4,8 @@ import com.calorietracker.backend.auth.CurrentUser;
 import com.calorietracker.backend.diary.dto.CreateDiaryEntryRequest;
 import com.calorietracker.backend.diary.dto.DaySummaryResponse;
 import com.calorietracker.backend.diary.dto.DiaryEntryResponse;
+import com.calorietracker.backend.diary.dto.StatsResponse;
+import com.calorietracker.backend.diary.dto.UpdateDiaryEntryRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,10 +39,24 @@ public class DiaryController {
         return diaryService.addEntry(request, CurrentUser.id(jwt));
     }
 
+    @PatchMapping("/{id}")
+    public DiaryEntryResponse updateGrams(@PathVariable Long id,
+                                          @Valid @RequestBody UpdateDiaryEntryRequest request,
+                                          @AuthenticationPrincipal Jwt jwt) {
+        return diaryService.updateGrams(id, request, CurrentUser.id(jwt));
+    }
+
     @GetMapping("/day")
     public DaySummaryResponse getDay(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                      @AuthenticationPrincipal Jwt jwt) {
         return diaryService.getDay(date, CurrentUser.id(jwt));
+    }
+
+    @GetMapping("/stats")
+    public StatsResponse getStats(@RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                                  @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                                  @AuthenticationPrincipal Jwt jwt) {
+        return diaryService.getStats(from, to, CurrentUser.id(jwt));
     }
 
     @DeleteMapping("/{id}")
