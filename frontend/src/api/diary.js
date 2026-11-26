@@ -11,3 +11,7 @@ export function addEntry({ productId, grams, mealType, eatenAt = new Date().toIS
 export function deleteEntry(id) {
   return request(`/api/diary/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }
+
+export function getStats(from, to, { signal } = {}) {
+  return request(`/api/diary/stats?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { signal })
+}

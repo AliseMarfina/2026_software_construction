@@ -6,6 +6,9 @@ import ProductSearch from '../components/products/ProductSearch.jsx'
 import CustomProductForm from '../components/products/CustomProductForm.jsx'
 import AddEntryForm from '../components/products/AddEntryForm.jsx'
 import './diary.css'
+import Statistics from './Statistics.jsx'
+import Goals from './Goals.jsx'
+import { readGoals, macroGoals } from './goals.js'
 
 const products = createProductsApi(request)
 const mealLabels = { breakfast: 'Завтрак', lunch: 'Обед', dinner: 'Ужин', snack: 'Перекус' }
@@ -15,7 +18,7 @@ function today() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 }
 
-function DayEntries({ date, onChanged }) {
+function DayEntries({ date, onChanged, goals }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [deleting, setDeleting] = useState(null)
@@ -48,7 +51,7 @@ function DayEntries({ date, onChanged }) {
   return <>
     <dl className="diary-totals">
       {[["Калории, ккал", data.totalKcal], ["Белки, г", data.totalProtein], ["Жиры, г", data.totalFat], ["Углеводы, г", data.totalCarbs]].map(([label, value]) =>
-        <div key={label}><dt>{label}</dt><dd>{format.format(value)}</dd></div>
+        <div key={label}><dt>{label}</dt><dd>{format.format(value)}<small className="goal-caption">из {format.format(macroGoals(goals)[label.startsWith("Калории") ? "kcal" : label.startsWith("Белки") ? "protein" : label.startsWith("Жиры") ? "fat" : "carbs"])}</small></dd></div>
       )}
     </dl>
     {deleteError && <p role="alert">{deleteError}</p>}
@@ -65,7 +68,9 @@ function DayEntries({ date, onChanged }) {
   </>
 }
 
-export default function DiaryPage({ onLogout }) {
+export default function DiaryPage({ onLogout, email }) {
+  const [goals, setGoals] = useState(() => readGoals(email))
+  const [tab, setTab] = useState('today')
   const [date, setDate] = useState(today)
   const [revision, setRevision] = useState(0)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -73,28 +78,31 @@ export default function DiaryPage({ onLogout }) {
   function refresh() { setRevision(value => value + 1) }
   function onAdded() {
     setDate(today())
+    setTab('today')
     refresh()
     setNotice('Запись добавлена. Дневник обновляется.')
   }
 
   return <main className="diary-page">
     <header className="diary-header"><h1>Дневник питания</h1><button onClick={onLogout}>Выйти</button></header>
-    <section className="diary-card" aria-labelledby="day-title">
+    <nav className="diary-tabs" aria-label="Разделы">{[['today', 'Сегодня'], ['add', 'Добавить'], ['foods', 'Мои продукты'], ['goals', 'Цели КБЖУ'], ['stats', 'Статистика']].map(([key, label]) => <button key={key} aria-current={tab === key ? 'page' : undefined} onClick={() => setTab(key)}>{label}</button>)}</nav>
+    {tab === 'goals' && <Goals email={email} goals={goals} onSaved={setGoals} />}
+    {tab === 'stats' && <Statistics today={today()} />}
+    {tab === 'today' && <section className="diary-card" aria-labelledby="day-title">
       <h2 id="day-title">Сводка за день</h2>
       <label htmlFor="diary-date">Дата </label>
       <input id="diary-date" type="date" value={date} onChange={event => { if (event.target.value) { setDate(event.target.value); setNotice('') } }} />
       <p role="status">{notice}</p>
-      <DayEntries key={`${date}:${revision}`} date={date} onChanged={refresh} />
-    </section>
-    <div className="diary-columns">
-      <div>
-        <ProductSearch onSelect={setSelectedProduct} searchProducts={products.searchProducts} />
-        <CustomProductForm onCreated={setSelectedProduct} createProduct={products.createCustomProduct} />
-      </div>
-      <div>
-        <p>Новые записи добавляются за текущий день сервера. После добавления откроется сегодняшний дневник.</p>
-        <AddEntryForm key={selectedProduct?.id ?? 'empty'} product={selectedProduct} addEntry={addEntry} onAdded={onAdded} />
-      </div>
+      <DayEntries key={`${date}:${revision}`} date={date} onChanged={refresh} goals={goals} />
+    </section>}
+    <div hidden={tab !== 'add'}>
+      <ProductSearch onSelect={setSelectedProduct} searchProducts={products.searchProducts} />
+      <AddEntryForm key={selectedProduct?.id ?? 'empty'} product={selectedProduct} addEntry={addEntry} onAdded={onAdded} />
     </div>
+    {tab === 'foods' && <>
+      <section className="diary-card"><h2>Мои продукты</h2><p className="products-muted">Найдите свой продукт по названию или создайте новый.</p></section>
+      <ProductSearch onSelect={product => { setSelectedProduct(product); setTab('add') }} searchProducts={async (query) => (await products.searchProducts(query)).filter(product => product.source === 'custom')} />
+      <CustomProductForm onCreated={product => { setSelectedProduct(product); setTab('add') }} createProduct={products.createCustomProduct} />
+    </>}
   </main>
 }
