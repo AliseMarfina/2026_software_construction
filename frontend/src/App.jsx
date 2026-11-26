@@ -4,10 +4,12 @@ import AuthForm from './components/auth/AuthForm.jsx'
 import { setAccessToken } from './api/client.js'
 
 function App() {
+  const [email, setEmail] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   function handleLogin(session) {
     setAccessToken(session.accessToken)
+    setEmail(session.email)
     setIsLoggedIn(true)
   }
 
@@ -18,7 +20,7 @@ function App() {
 
   if (!isLoggedIn) return <AuthForm onLogin={handleLogin} />
 
-  return <DiaryPage onLogout={handleLogout} />
+  return <DiaryPage key={email} email={email} onLogout={handleLogout} />
 }
 
 export default App

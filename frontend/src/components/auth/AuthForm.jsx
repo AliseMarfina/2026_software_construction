@@ -29,7 +29,7 @@ function AuthForm({ onLogin }) {
         if (typeof session?.accessToken !== 'string' || !session.accessToken) {
           throw new Error('Сервер не вернул токен входа. Попробуйте ещё раз.')
         }
-        onLogin(session)
+        onLogin({ ...session, email: email.trim().toLowerCase() })
       }
     } catch (err) {
       setError(err.message || 'Не удалось выполнить запрос.')
